@@ -10,10 +10,10 @@ import (
 	"runtime"
 	"strings"
 
-	"github.com/jinzhu/gorm"
+	"gorm.io/gorm"
 
-	_ "github.com/jinzhu/gorm/dialects/mysql"
-	_ "github.com/jinzhu/gorm/dialects/postgres"
+	"gorm.io/driver/mysql"
+	"gorm.io/driver/postgres"
 )
 
 const (
@@ -24,15 +24,15 @@ const (
 func main() {
 	// #################### Config #####################
 	dbType := DB_TYPE_MYSQL
-	host := "192.168.1.1"
+	host := "0.0.0.0"
 	port := "3306"
 	user := "root"
 	password := "123456"
 	database := "test"
 	tables := []string{"test"}
 	// set path
-	// Ex. "D:\workspace\go\src\test\model"
-	path := "D:\\workspace\\go\\src\\generate_go_code_by_db\\model"
+	// Ex. usr/workspace/model
+	path := "usr/workspace/model"
 	// #################### Config #####################
 
 	dbType = strings.ToLower(dbType)
@@ -55,9 +55,9 @@ func initDbConn(dbType, host, port, user, password, database string) (*gorm.DB, 
 	var err error
 	switch dbType {
 	case DB_TYPE_MYSQL:
-		db, err = gorm.Open("mysql", fmt.Sprintf("%s:%s@tcp(%s:%s)/%s?charset=utf8mb4&parseTime=True&loc=Local", user, password, host, port, database))
+		db, err = gorm.Open(mysql.Open(fmt.Sprintf("%s:%s@tcp(%s:%s)/%s?charset=utf8mb4&parseTime=True&loc=Local", user, password, host, port, database)))
 	case DB_TYPE_POSTGRESQL:
-		db, err = gorm.Open("postgres", fmt.Sprintf("host=%s port=%s user=%s password=%s dbname=%s sslmode=disable", host, port, user, password, database))
+		db, err = gorm.Open(postgres.Open(fmt.Sprintf("host=%s port=%s user=%s password=%s dbname=%s sslmode=disable", host, port, user, password, database)))
 	}
 	if err != nil {
 		return nil, err

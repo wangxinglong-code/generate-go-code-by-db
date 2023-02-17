@@ -21,7 +21,7 @@ package main
 
 func main() {
 	dbType := "mysql"
-	host := "192.168.1.1"
+	host := "0.0.0.0"
 	port := "3306"
 	user := "root"
 	password := "123456"
@@ -29,7 +29,7 @@ func main() {
 	// You can specify the name of the table that needs to be read, if not filled it will read all database tables
 	tables := []string{"test"} 
 	// Notice: this path must exist
-	// Ex.
+	// Ex. usr/workspace/model
 	path := "usr/workspace/model" 
 }
 ```
