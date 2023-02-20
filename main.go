@@ -3,11 +3,8 @@ package main
 import (
 	"fmt"
 	"io/ioutil"
-	"log"
 	"os"
-	"path"
 	"path/filepath"
-	"runtime"
 	"strings"
 
 	"gorm.io/gorm"
@@ -149,11 +146,11 @@ func create(dbType, path string, list []*Base) string {
 			tableStruct := getTableStruct(v, dbType, tableNameTitle, v[0].TableComment)
 
 			// get template
-			template, err := getTableTemplate()
-			if err != nil {
-				fmt.Println(filePath, " create failed, get table template failed, error: ", err.Error())
-				continue
-			}
+			// template, err := getTableTemplate()
+			// if err != nil {
+			// 	fmt.Println(filePath, " create failed, get table template failed, error: ", err.Error())
+			// 	continue
+			// }
 
 			// set template
 			template = setTableTemplate(template, getPackageName(path), tableStruct, tableNameTitle, k)
@@ -212,16 +209,16 @@ func getFieldTag(fieldName string) string {
 	return fmt.Sprintf("`json:\"%s\" gorm:\"column:%s\"`", fieldName, fieldName)
 }
 
-func getTableTemplate() (string, error) {
-	wd, _ := os.Getwd()
-	path := filepath.Join(wd, "template.txt")
-	f, err := ioutil.ReadFile(path)
-	if err != nil {
-		path = filepath.Join(getCurrentAbPath(), "template.txt")
-		f, err = ioutil.ReadFile(path)
-	}
-	return string(f), err
-}
+// func getTableTemplate() (string, error) {
+// 	wd, _ := os.Getwd()
+// 	path := filepath.Join(wd, "template.txt")
+// 	f, err := ioutil.ReadFile(path)
+// 	if err != nil {
+// 		path = filepath.Join(getCurrentAbPath(), "template.txt")
+// 		f, err = ioutil.ReadFile(path)
+// 	}
+// 	return string(f), err
+// }
 
 func setTableTemplate(template string, packageName, tableStruct, tableNameTitle, tableName string) string {
 	template = strings.ReplaceAll(template, "{package_name}", packageName)
@@ -235,40 +232,40 @@ func write(path, template string) error {
 	return ioutil.WriteFile(path, []byte(template), 0777)
 }
 
-func getCurrentAbPath() string {
-	dir := getCurrentAbPathByExecutable()
-	if strings.Contains(dir, getTmpDir()) {
-		return getCurrentAbPathByCaller()
-	}
-	return dir
-}
+// func getCurrentAbPath() string {
+// 	dir := getCurrentAbPathByExecutable()
+// 	if strings.Contains(dir, getTmpDir()) {
+// 		return getCurrentAbPathByCaller()
+// 	}
+// 	return dir
+// }
 
-func getTmpDir() string {
-	dir := os.Getenv("TEMP")
-	if dir == "" {
-		dir = os.Getenv("TMP")
-	}
-	res, _ := filepath.EvalSymlinks(dir)
-	return res
-}
+// func getTmpDir() string {
+// 	dir := os.Getenv("TEMP")
+// 	if dir == "" {
+// 		dir = os.Getenv("TMP")
+// 	}
+// 	res, _ := filepath.EvalSymlinks(dir)
+// 	return res
+// }
 
-func getCurrentAbPathByExecutable() string {
-	exePath, err := os.Executable()
-	if err != nil {
-		log.Fatal(err)
-	}
-	res, _ := filepath.EvalSymlinks(filepath.Dir(exePath))
-	return res
-}
+// func getCurrentAbPathByExecutable() string {
+// 	exePath, err := os.Executable()
+// 	if err != nil {
+// 		log.Fatal(err)
+// 	}
+// 	res, _ := filepath.EvalSymlinks(filepath.Dir(exePath))
+// 	return res
+// }
 
-func getCurrentAbPathByCaller() string {
-	var abPath string
-	_, filename, _, ok := runtime.Caller(0)
-	if ok {
-		abPath = path.Dir(filename)
-	}
-	return abPath
-}
+// func getCurrentAbPathByCaller() string {
+// 	var abPath string
+// 	_, filename, _, ok := runtime.Caller(0)
+// 	if ok {
+// 		abPath = path.Dir(filename)
+// 	}
+// 	return abPath
+// }
 
 func getPackageName(path string) string {
 	slice := strings.Split(path, string(os.PathSeparator))
@@ -365,3 +362,34 @@ var PostgreSqlFieldType2GoType = map[string]string{
 	"varchar":       "string",
 	"xml":           "string",
 }
+
+var template = `
+package {package_name}
+
+{table_struct}
+
+func (table *{table_name_title}) TableName() string {
+	return "{table_name}"
+}
+
+func (table *{table_name_title}) Get(id int) (*{table_name_title}, error) {
+	var m {table_name_title}
+	return &m, nil
+}
+
+func (table *{table_name_title}) List() ([]*{table_name_title}, int64, error) {
+	var list []*{table_name_title}
+	var count int64
+	var err error
+	return list, count, err
+}
+
+func (table *{table_name_title}) Save(m *{table_name_title}) error {
+	return nil
+}
+
+func (table *{table_name_title}) Delete(m *{table_name_title}) error {
+	return nil
+}
+
+`

@@ -35,4 +35,4 @@ func main() {
 ```
 
 * If you think that the automatically generated code cannot meet your development needs
-* you can also directly edit the `template.txt` file to control the content of the code generation
+* You can directly edit the `template` variable in `main.go` to control what the code generates
